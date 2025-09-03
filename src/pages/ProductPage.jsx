@@ -5,18 +5,18 @@ import { apiGetProductById } from "../api/products";
 // Detta förhindrar att arrayen skapas om vid varje render
 const COLORS = ["#dc9ff6", "#a3af9f", "#75d4e8"];
 
-export function ProductPage({ pageData }) {
+export function ProductPage({ pageData, addToCart, removeFromCart, isInCart }) {
   // En state för att hålla koll på produkt information som vi hämtar från API
   const [product, setProduct] = useState(null);
-  
+
   // State för att hålla koll på vilken bild som visas som stor bild
   // Börjar som null eftersom vi inte har laddat produkten än
   const [activeImage, setActiveImage] = useState(null);
-  
+
   // State för att hålla koll på vilken tag användaren har valt från dropdown
   // Börjar som tom sträng så att inget är valt från början
   const [tagSelect, setTagSelect] = useState("");
-  
+
   // State för att hålla koll på vilken färg användaren har valt
   // Börjar med första färgen i COLORS arrayen som default
   const [colorSelect, setColorSelect] = useState(COLORS[0]);
@@ -50,6 +50,8 @@ export function ProductPage({ pageData }) {
     return <div>Loading product...</div>;
   }
 
+  console.log(product.title, isInCart(product));
+
   // Huvudinnehållet som visas när produkten är laddad
   return (
     <div>
@@ -65,12 +67,12 @@ export function ProductPage({ pageData }) {
         <section>
           {/* Stor huvudbild som visar den aktiva bilden */}
           <img width="500px" src={activeImage} />
-          
+
           {/* Container för alla miniatyrbilder */}
           <div>
             {/* Loopar igenom alla produktbilder och skapar knappar för varje bild */}
             {product.images.map((image, index) => (
-              <button 
+              <button
                 key={index} // Viktigt att ha key när man använder map()
                 onClick={() => setActiveImage(image)} // Uppdaterar activeImage när man klickar
               >
@@ -118,6 +120,14 @@ export function ProductPage({ pageData }) {
           ))}
         </div>
       </section>
+
+      {isInCart(product) ? (
+        <button onClick={() => removeFromCart(product)}>
+          Remove from cart
+        </button>
+      ) : (
+        <button onClick={() => addToCart(product)}>Add to cart</button>
+      )}
     </div>
   );
 }
