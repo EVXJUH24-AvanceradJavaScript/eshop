@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { PRODUCT_PAGE } from "../App";
 import { Hero } from "../components/Hero";
 import { ProductDisplayGrid } from "../components/ProductDisplayGrid";
 import { apiGetProducts } from "../api/products";
 
-export function HomePage({ setPageData, changePage }) {
+export function HomePage() {
   // En state för att spara produkter som vi hämtar från DummyJSON
   const [products, setProducts] = useState([]);
 
@@ -24,8 +23,6 @@ export function HomePage({ setPageData, changePage }) {
         title="Featured Products"
         maxProducts={6}
         allProducts={products}
-        setPageData={setPageData}
-        changePage={changePage}
       />
     </div>
   );

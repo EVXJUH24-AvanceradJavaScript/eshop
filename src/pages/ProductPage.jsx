@@ -1,11 +1,19 @@
 import { useEffect, useState } from "react";
 import { apiGetProductById } from "../api/products";
+import { Navigate, useParams } from "react-router";
+import { HOME_PAGE } from "../App";
 
 // Definierar tillgängliga färger som konstant utanför komponenten
 // Detta förhindrar att arrayen skapas om vid varje render
 const COLORS = ["#dc9ff6", "#a3af9f", "#75d4e8"];
 
-export function ProductPage({ pageData, addToCart, removeFromCart, isInCart }) {
+export function ProductPage({ addToCart, removeFromCart, isInCart }) {
+  const params = useParams();
+  const productId = Number.parseInt(params.id);
+  if (Number.isNaN(productId)) {
+    return <Navigate to={HOME_PAGE} />;
+  }
+
   // En state för att hålla koll på produkt information som vi hämtar från API
   const [product, setProduct] = useState(null);
 
@@ -27,7 +35,7 @@ export function ProductPage({ pageData, addToCart, removeFromCart, isInCart }) {
   // Vi vill endast hämta informationen en gång och därför ligger koden i en
   // useEffect med tom dependency array []
   useEffect(() => {
-    apiGetProductById(pageData.productId).then((product) => {
+    apiGetProductById(productId).then((product) => {
       setProduct(product);
       // Nedanför kan göras som alternativ till useEffect med dependency till product
       // setActiveImage(product.images[0]);

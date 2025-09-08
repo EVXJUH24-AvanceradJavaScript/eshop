@@ -6,17 +6,14 @@ import { HomePage } from "./pages/HomePage";
 import { ShopPage } from "./pages/ShopPage";
 import { ProductPage } from "./pages/ProductPage";
 import { Cart } from "./components/Cart";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router";
 
 // Konstanter för att skilja på sidor och enkelt hantera dem
-export const HOME_PAGE = "home";
-export const SHOP_PAGE = "shop";
-export const PRODUCT_PAGE = "product";
+export const HOME_PAGE = "/";
+export const SHOP_PAGE = "/shop";
+export const PRODUCT_PAGE = "/product/";
 
 function App() {
-  // En state för att hålla koll på vilken sida som är "aktiv" (manuell routing)
-  const [page, setPage] = useState(SHOP_PAGE);
-  // En state för att hålla koll på sido-specifik relevant data (som e.g. vilken produkt vi har tryckt på (id))
-  const [pageData, setPageData] = useState(null);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
 
@@ -24,12 +21,6 @@ function App() {
     const cartStorage = JSON.parse(localStorage.getItem("cart")) || [];
     setCart(cartStorage);
   }, []);
-
-  // En funktion för att ändra aktiv sida
-  const changePage = (page) => {
-    // Anropa state funktion för att ändra sida
-    setPage(page);
-  };
 
   const addToCart = (product) => {
     setCart((current) => {
@@ -84,38 +75,50 @@ function App() {
     });
   };
 
-  // Variabel som bestämmer vilken page-komponent som skall visas, eller 404 om inget hittades
-  let content = <div>404 Not Found</div>;
-  if (page === HOME_PAGE) {
-    // Skicka med funktioner och data för att ändra sida och sidodata
-    content = (
-      <HomePage
-        changePage={changePage}
-        pageData={pageData}
-        setPageData={setPageData}
-      />
-    );
-  } else if (page === SHOP_PAGE) {
-    content = (
-      <ShopPage
-        changePage={changePage}
-        pageData={pageData}
-        setPageData={setPageData}
-      />
-    );
-  } else if (page === PRODUCT_PAGE) {
-    content = (
-      <ProductPage
-        changePage={changePage}
-        pageData={pageData}
-        setPageData={setPageData}
-        addToCart={addToCart}
-        removeFromCart={removeFromCart}
-        isInCart={isInCart}
-      />
-    );
-  }
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Layout
+              addCartItemAmount={addCartItemAmount}
+              reduceCartItemAmount={reduceCartItemAmount}
+              removeFromCart={removeFromCart}
+              cart={cart}
+              setCart={setCart}
+              cartOpen={cartOpen}
+              setCartOpen={setCartOpen}
+            />
+          }
+        >
+          <Route index element={<HomePage />} />
+          <Route path="shop" element={<ShopPage />} />
+          <Route
+            path="product/:id"
+            element={
+              <ProductPage
+                addToCart={addToCart}
+                removeFromCart={removeFromCart}
+                isInCart={isInCart}
+              />
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
 
+function Layout({
+  cart,
+  setCart,
+  cartOpen,
+  removeFromCart,
+  addCartItemAmount,
+  reduceCartItemAmount,
+  setCartOpen,
+}) {
   return (
     <div id="app">
       <Cart
@@ -126,8 +129,10 @@ function App() {
         addCartItemAmount={addCartItemAmount}
         reduceCartItemAmount={reduceCartItemAmount}
       />
-      <Nav changePage={changePage} setCartOpen={setCartOpen} />
-      <main>{content}</main>
+      <Nav setCartOpen={setCartOpen} />
+      <main>
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );

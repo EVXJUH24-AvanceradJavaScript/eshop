@@ -1,10 +1,13 @@
-export function ProductCard({ product, onClick }) {
+import { Link } from "react-router";
+import { PRODUCT_PAGE } from "../App";
+
+export function ProductCard({ product }) {
   return (
     <article>
       <img src={product.thumbnail} />
       <h3>{product.title}</h3>
       <p>{product.description}</p>
-      <button onClick={onClick}>Learn More</button>
+      <Link to={PRODUCT_PAGE + product.id}>Learn More</Link>
     </article>
   );
 }
