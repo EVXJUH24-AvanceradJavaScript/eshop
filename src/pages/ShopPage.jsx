@@ -1,3 +1,9 @@
+import { Page, PageContent } from "grommet";
+
 export function ShopPage() {
-  return <div>Shop</div>;
+  return (
+    <Page kind="narrow">
+      <PageContent>Shop</PageContent>
+    </Page>
+  );
 }

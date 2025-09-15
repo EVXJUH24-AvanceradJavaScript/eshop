@@ -1,3 +1,4 @@
+import { Box, Card, Grid } from "grommet";
 import { PRODUCT_PAGE } from "../App";
 import { ProductCard } from "./ProductCard";
 
@@ -11,12 +12,12 @@ export function ProductDisplayGrid({ title, allProducts, maxProducts }) {
         <h2>{title}</h2>
         <button>See All</button>
       </div>
-      <div>
+      <Box direction="row" wrap gap="medium" justify="around" cssGap>
         {products.map((product) => (
           // Mappa ut varje produkt till en ProductCard komponent och skicka med nödvändig information
           <ProductCard product={product} key={product.id} />
         ))}
-      </div>
+      </Box>
     </section>
   );
 }

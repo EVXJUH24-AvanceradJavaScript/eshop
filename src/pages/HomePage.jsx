@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Hero } from "../components/Hero";
 import { ProductDisplayGrid } from "../components/ProductDisplayGrid";
 import { apiGetProducts } from "../api/products";
+import { Page, PageContent } from "grommet";
 
 export function HomePage() {
   // En state för att spara produkter som vi hämtar från DummyJSON
@@ -14,16 +15,18 @@ export function HomePage() {
   }, []);
 
   return (
-    <div>
-      <Hero />
+    <Page kind="wide">
+      <PageContent>
+        <Hero />
 
-      {/* Skicka med produkter från state till grid komponenten för rendering */}
-      {/* Skicka också med sidofunktioner för att kunna byta sida (när man trycker på en produkt) */}
-      <ProductDisplayGrid
-        title="Featured Products"
-        maxProducts={6}
-        allProducts={products}
-      />
-    </div>
+        {/* Skicka med produkter från state till grid komponenten för rendering */}
+        {/* Skicka också med sidofunktioner för att kunna byta sida (när man trycker på en produkt) */}
+        <ProductDisplayGrid
+          title="Featured Products"
+          maxProducts={6}
+          allProducts={products}
+        />
+      </PageContent>
+    </Page>
   );
 }

@@ -2,12 +2,19 @@ import { useEffect, useState } from "react";
 import { apiGetProductById } from "../api/products";
 import { Navigate, useParams } from "react-router";
 import { HOME_PAGE } from "../App";
+import { useCart } from "../states/cart";
+import { Button, Page, PageContent, Select } from "grommet";
 
 // Definierar tillgängliga färger som konstant utanför komponenten
 // Detta förhindrar att arrayen skapas om vid varje render
 const COLORS = ["#dc9ff6", "#a3af9f", "#75d4e8"];
 
-export function ProductPage({ addToCart, removeFromCart, isInCart }) {
+export function ProductPage() {
+  const addToCart = useCart((state) => state.addToCart);
+  const removeFromCart = useCart((state) => state.removeFromCart);
+  const isInCart = useCart((state) => state.isInCart);
+  const _cart = useCart((state) => state.cart);
+
   const params = useParams();
   const productId = Number.parseInt(params.id);
   if (Number.isNaN(productId)) {
@@ -37,6 +44,7 @@ export function ProductPage({ addToCart, removeFromCart, isInCart }) {
   useEffect(() => {
     apiGetProductById(productId).then((product) => {
       setProduct(product);
+      setTagSelect(product.tags[0]);
       // Nedanför kan göras som alternativ till useEffect med dependency till product
       // setActiveImage(product.images[0]);
     });
@@ -62,80 +70,95 @@ export function ProductPage({ addToCart, removeFromCart, isInCart }) {
 
   // Huvudinnehållet som visas när produkten är laddad
   return (
-    <div>
-      {/* Sektion för produkttitel och beskrivning */}
-      <section>
-        <h1>{product.title}</h1>
-        <p>{product.description}</p>
-      </section>
-
-      {/* Sektion för produktbilder - visas bara om activeImage finns */}
-      {/* && operatorn används för conditional rendering */}
-      {activeImage && (
+    <Page kind="narrow">
+      <PageContent>
+        {/* Sektion för produkttitel och beskrivning */}
         <section>
-          {/* Stor huvudbild som visar den aktiva bilden */}
-          <img width="500px" src={activeImage} />
+          <h1>{product.title}</h1>
+          <p>{product.description}</p>
+        </section>
 
-          {/* Container för alla miniatyrbilder */}
+        {/* Sektion för produktbilder - visas bara om activeImage finns */}
+        {/* && operatorn används för conditional rendering */}
+        {activeImage && (
+          <section>
+            {/* Stor huvudbild som visar den aktiva bilden */}
+            <img width="500px" src={activeImage} />
+
+            {/* Container för alla miniatyrbilder */}
+            <div>
+              {/* Loopar igenom alla produktbilder och skapar knappar för varje bild */}
+              {product.images.map((image, index) => (
+                <button
+                  key={index} // Viktigt att ha key när man använder map()
+                  onClick={() => setActiveImage(image)} // Uppdaterar activeImage när man klickar
+                >
+                  {/* Miniatyrbild i varje knapp */}
+                  <img src={image} width="100px" />
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Sektion för produktval - tags och färger */}
+        <section>
+          {/* Dropdown för att välja produkttags */}
+          <Select
+            options={product.tags}
+            value={tagSelect}
+            onChange={({ option }) => setTagSelect(option)}
+            children={(option) => {
+              const firstChar = option[0];
+              console.log(firstChar);
+              const remaining = option.substring(1);
+              return firstChar.toUpperCase() + remaining;
+            }}
+            valueLabel={(option) => {
+              const firstChar = option[0];
+              console.log(firstChar);
+              const remaining = option.substring(1);
+              return firstChar.toUpperCase() + remaining;
+            }}
+          />
+
+          {/* Container för färgknappar */}
           <div>
-            {/* Loopar igenom alla produktbilder och skapar knappar för varje bild */}
-            {product.images.map((image, index) => (
+            {/* Loopar igenom COLORS arrayen och skapar en knapp för varje färg */}
+            {COLORS.map((color, index) => (
               <button
                 key={index} // Viktigt att ha key när man använder map()
-                onClick={() => setActiveImage(image)} // Uppdaterar activeImage när man klickar
+                onClick={() => setColorSelect(color)} // Uppdaterar vald färg när man klickar
+                style={{
+                  backgroundColor: color, // Sätter knappens bakgrundsfärg till den aktuella färgen
+                  width: "50px",
+                  height: "50px",
+                  borderRadius: "50%", // Gör knappen rund
+                }}
               >
-                {/* Miniatyrbild i varje knapp */}
-                <img src={image} width="100px" />
+                {/* Visar en bock (✓) bara om denna färg är den valda färgen */}
+                {/* Detta är conditional rendering med && operatorn */}
+                {color === colorSelect && "✓"}
               </button>
             ))}
           </div>
         </section>
-      )}
 
-      {/* Sektion för produktval - tags och färger */}
-      <section>
-        {/* Dropdown för att välja produkttags */}
-        <select
-          value={tagSelect} // Kontrollerad komponent - värdet kommer från state
-          onChange={(event) => setTagSelect(event.target.value)} // Uppdaterar state när användaren väljer
-        >
-          {/* Loopar igenom alla produkttags och skapar option-element för varje tag */}
-          {product.tags.map((tag, index) => (
-            <option key={index} value={tag}>
-              {tag}
-            </option>
-          ))}
-        </select>
-
-        {/* Container för färgknappar */}
-        <div>
-          {/* Loopar igenom COLORS arrayen och skapar en knapp för varje färg */}
-          {COLORS.map((color, index) => (
-            <button
-              key={index} // Viktigt att ha key när man använder map()
-              onClick={() => setColorSelect(color)} // Uppdaterar vald färg när man klickar
-              style={{
-                backgroundColor: color, // Sätter knappens bakgrundsfärg till den aktuella färgen
-                width: "50px",
-                height: "50px",
-                borderRadius: "50%", // Gör knappen rund
-              }}
-            >
-              {/* Visar en bock (✓) bara om denna färg är den valda färgen */}
-              {/* Detta är conditional rendering med && operatorn */}
-              {color === colorSelect && "✓"}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {isInCart(product) ? (
-        <button onClick={() => removeFromCart(product)}>
-          Remove from cart
-        </button>
-      ) : (
-        <button onClick={() => addToCart(product)}>Add to cart</button>
-      )}
-    </div>
+        {isInCart(product) ? (
+          <Button
+            onClick={() => removeFromCart(product)}
+            label="Remove from cart"
+            primary
+          />
+        ) : (
+          <Button
+            onClick={() => addToCart(product)}
+            label="Add to cart"
+            primary
+            alignSelf="flex-start"
+          />
+        )}
+      </PageContent>
+    </Page>
   );
 }

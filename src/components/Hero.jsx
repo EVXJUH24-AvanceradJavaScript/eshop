@@ -11,7 +11,10 @@ export function Hero() {
         <button>Shop Now</button>
       </div>
       <div>
-        <img src="https://salinaka-ecommerce.web.app/images/banner-girl.789f1fa6f451ad26c5039fcbc049ace7.png" />
+        <img
+          width="100%"
+          src="https://salinaka-ecommerce.web.app/images/banner-girl.789f1fa6f451ad26c5039fcbc049ace7.png"
+        />
       </div>
     </section>
   );
